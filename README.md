@@ -17,6 +17,8 @@ For the short answer questions...
 * _Communicate clearly_. We are not grading your writing skills, but you can only receive full credit if your teacher is able to fully understand your response. 
 
 * _Be concise_. You should be able to answer most short answer questions in a sentence or two. Writing unnecessarily long answers increases the risk of you being unclear or saying something incorrect.
+
+```python
 # Run this cell without changes
 import pandas as pd
 import numpy as np
@@ -43,20 +45,30 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
 from sklearn.cluster import KMeans
+```
+
 ---
 ## Part 1: KNN + Pipelines [Suggested time: 20 minutes]
 ---
+
 You are given a dataset containing various physical characteristics of the seeds of three distinct species of wheat. Your job will be to tune/train a KNN classifier that can predict the species based on the provided features.
 
 Load in the data:
+
+```python
 # Run this cell without changes to load in data
 wheat_df = pd.read_csv('wheat_seeds.csv')
 wheat_df.head()
+```
 
 # wheat_df.columns
 Inspect this dataframe and its statistics:
+
+```python
 # Run this cell without changing
 wheat_df.info()
+```
+
 # Run this cell without changing
 wheat_df.describe()
 There are a few NaNs in the `compactness` column and a quick look at the summary statistics reveal that the mean and variance for some of the features are significantly different. We are going to simple `impute` the `NaN` with the mean and standard scale the features.
