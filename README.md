@@ -357,8 +357,14 @@ The following data contains age and income information from a sample of customer
 # Run this cell without changes to import data
 data_df = pd.read_csv('mall_clust.csv').set_index('CustomerID')
 data_df.head()
+```
+
+```python
 # Run this cell without changes
 data_df.info()
+```
+
+```python
 # Run this cell without changes
 data_df.describe()
 ```
