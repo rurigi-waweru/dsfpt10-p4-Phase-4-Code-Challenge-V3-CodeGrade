@@ -61,7 +61,6 @@ wheat_df = pd.read_csv('wheat_seeds.csv')
 wheat_df.head()
 ```
 
-# wheat_df.columns
 Inspect this dataframe and its statistics:
 
 ```python
