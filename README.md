@@ -68,25 +68,38 @@ Inspect this dataframe and its statistics:
 # Run this cell without changing
 wheat_df.info()
 ```
-
+```python
 # Run this cell without changing
 wheat_df.describe()
+```
+
 There are a few NaNs in the `compactness` column and a quick look at the summary statistics reveal that the mean and variance for some of the features are significantly different. We are going to simple `impute` the `NaN` with the mean and standard scale the features.
+
+
 ### 1.1) Short Answer: What fact about the KNN algorithm makes it necessary to standard scale the features? Explain.
-# Your answer here # brian-answer
+
+#### Your answer here # brian-answer
 knn algorithm depends on measuring distances like Euclidean distance. Some results might be skewed if some data has long distances thus standard scaling helps make data to have close-like distance-relationship.
+
 ### 1.2) Short Answer: We'll be setting up a Pipeline to do the imputation, scaling, and then passing the data on to the KNN model. What problem can pipelines help avoid during cross-validation?
-# Your answer here # brian-answer
+
+#### Your answer here # brian-answer
 pipelines help prevent data leakage while doing cross validation, particularly helping us avoid imputing the entire dataset before splitting the test and training data in the course of preprocessing. 
 
 Now we'll create a pipeline that performs a couple transformations before passing the data to a KNN estimator.
+
+```python
 # Run this cell without changes
 steps = [('imp', SimpleImputer(strategy='mean')),
          ('scaler', StandardScaler()),
          ('knn', KNeighborsClassifier(n_neighbors=30))]
          
 pipe = Pipeline(steps) 
+```
+
 ### 1.3) Conduct a 70-30 train-test split. Use a `random_state` of 42 for the train_test_split. Save the train and test set features to X_train, X_test respectively. Save the train and test set labels to y_train, y_test respectively.
+
+```python
 # CodeGrade step1.1
 # Replace None with appropriate code
 # do the required data splitting here
@@ -97,10 +110,18 @@ y = wheat_df['Type']
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state = 42)
+```
+
 A quick perusal shows that the train set is fairly balanced. We'll thus use classification accuracy as our metric for evaluating our train/test sets.
+
+```python
 # Run this cell without changes
 y.value_counts()
+```
+
 ### 1.4) Train/fit the pipeline and evaluate accuracy on the test set. Save your predicted values on the test set to `y_pred`. Save your computed test accuracy score to the variable `test_acc`.
+
+```python
 # CodeGrade step1.2
 # Replace None with appropriate code
 
@@ -111,16 +132,21 @@ pipe.fit(X_train, y_train)
 y_pred = pipe.predict(X_test)
 test_acc = accuracy_score(y_test, y_pred) 
 test_acc
+```
+
 Tuning the hyperparameters of the transformers and estimators in our pipeline can be accomplished using a grid search cross validation or a randomized search cross validation.
+
 ### 1.5) Create a GridSearchCV on the pipeline and save it to an object called `grid_knn`:
+
 - create a parameter grid that allows the search to tune the following:
     - n = 1, 5, 10, 20, 30 nearest neighbors for KNN
     - mean and mode strategies for imputation
 - perform a $k=5$ cross validation on our pipeline estimator.
 - gridsearch the pipeline using a scoring metric of accuracy
 - Extract the best model from the gridsearch and save it to a variable *best_pipe*
-# CodeGrade step1.3
 
+```python
+# CodeGrade step1.3
 # Setup grid for search
 params = {
     'imp__strategy': ['mean', 'most_frequent'],
@@ -138,12 +164,20 @@ grid_knn = GridSearchCV(
 # Fit and get best model
 grid_knn.fit(X_train, y_train)
 best_pipe = grid_knn.best_estimator_
+```
+
 The best parameters are:
+
+```python
 # Run this cell without changes
 print(grid_knn.best_params_)
+```
+
 ### 1.6) Retrain `best_pipe` (your best model from cross validation) on your entire train set and predict on the true hold-out test set. 
 - Save model test predictions to a variable `y_best_pred`
 - Evaluate the model accuracy on the test set and save it to a variable `tuned_test_acc`
+
+```python
 # CodeGrade step1.4
 # Replace None with appropriate code
 
@@ -154,33 +188,54 @@ best_pipe.fit(X_train, y_train)
 y_best_pred = best_pipe.predict(X_test)
 tuned_test_acc = accuracy_score(y_test, y_best_pred)
 tuned_test_acc
+```
+
 ## Part 2: Ensembles & Boosting [Suggested time: 5 minutes]
 Random forests are an `ensemble tree method` that aggregates the results of many randomized decision trees in order to construct a classifier/regressor that often performs better than a single decision tree. 
 
 ### 2.1) Short Answer: Identify the two main methods of randomization used in random forests. How are these methods employed in the random forest algorithm, and how do they help to combat the high variance that tends to characterize decision-tree models?
-# Your  answer here # brian-answer
+
+
+#### Your  answer here # brian-answer
 
 The main two methods are bootstrap sampling (aka bagging) and random-feature-selection. Bagging introduces variation by training each tree on a random sample of the original data, selected with replacement. In random feature selection, only a random subset of features is considered at each split. These methods reduce model variance and improve performance compared to a single decision tree.
 
 ### 2.2) Short Answer: In order to get a random forest that generalizes well, it's typically necessary to tune some hyperparameters. In the language of Sklearn's implementation, one of the most relevant hyperparameters is `max_depth`. Describe this hyperparameter and how it can factor into model performance.
-# Your answer here # brian-answer
+
+
+#### Your answer here # brian-answer
 
 The max_depth parameter helps control the number of splits a tree can have from the root to the leaf. A large depth can capture more depth patterns but that would lead to overfitting while a small depth helps improve generalization but may lead to underfitting. This all basically helps us to balance between bias and variance in the model. 
+
+
 ## Part 3: Natural Language Processing [Suggested time: 20 minutes]
+
 You have recieved a collection of Amazon Kindle book reviews. The text has been labeled with a positive (1) or negative (0) sentiment. You are tasked with training a Sentiment Analyzer off of this free text data. First, let's load in the data.
+
+```python
 # Run this cell without changes to load in data
 sentiment_data = pd.read_csv('sentiment_analysis.csv')
 sentiment_data.head()
+```
+
+
 One of the most important tasks before attempting to construct feature vectors and modeling is to tokenize and then normalize/preprocess the text. This can include:
 - lower casing
 - removing numerics 
 - removing stopwords
 - stemming/lemmatization
+
+
 ### 3.1) Short Answer: Explain why stop word removal might be a useful preprocessing step prior to any given predictive task.
-# Your answer here # brian-answer
+
+
+#### Your answer here # brian-answer
 
 This stop-word removal is crucial because "stop-words" such as 'the', 'is', 'of', 'and', etc are very common words which would serve very little meaning in prediction. Hence, removing them reduces noises and lowers dimensionality allowing the model to focus on more distinctive words that would inform sentiments and content. 
+
 The following function takes in the reviewText column in our sentiment_data dataframe and preprocesses the documents. Run the following cell. This may take a minute. The preprocessed text will be saved to a new column in our sentiment_data dataframe.
+
+```python
 # Run this cell without changes to preprocess the text
 
 def tokenize_and_preprocess(reviews):
@@ -210,12 +265,17 @@ def tokenize_and_preprocess(reviews):
     return preprocessed
 
 sentiment_data['preprocessed_text'] = tokenize_and_preprocess(sentiment_data.reviewText)
-Our text has been preprocessed and we can create a BoW matrix. You will use a TF-IDF vectorizer for this task. But before doing that:
-### 3.2) Short Answer: Explain, in your own words, how the TF-IDF vectorizer assigns weights to features (tokens) in a given document. What would a high score mean for a particular word & document pair.
-# Your answer here # brian-answer
+```
 
-The TF-IDF vectorizer gives weights based on two 
-terms frequency (TF), which determines how often a word appears in a document and the Inverse Document Frequency (IDF), which determines how rare that word is across all entire series of documents. A word gets a high score when it appears frequently in one document but is rare across the entire corpus meaning the word is important in the specific document proving helpful to the model to differentiate it from other words.
+Our text has been preprocessed and we can create a BoW matrix. You will use a TF-IDF vectorizer for this task. But before doing that:
+
+### 3.2) Short Answer: Explain, in your own words, how the TF-IDF vectorizer assigns weights to features (tokens) in a given document. What would a high score mean for a particular word & document pair.
+
+
+#### Your answer here # brian-answer
+
+The TF-IDF vectorizer gives weights based on two terms frequency (TF), which determines how often a word appears in a document and the Inverse Document Frequency (IDF), which determines how rare that word is across all entire series of documents. A word gets a high score when it appears frequently in one document but is rare across the entire corpus meaning the word is important in the specific document proving helpful to the model to differentiate it from other words.
+
 ### 3.3) Save the relevant text and target to X_sent, y_sent. Use the `preprocessed_test` column created above. Train/test split with a random_state = 42. Use a 70-30 train-test split and save to the relevant variables below.
 # CodeGrade step3.1
 # Replace None with appropriate code
